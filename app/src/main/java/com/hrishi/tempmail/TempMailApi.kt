@@ -16,5 +16,5 @@ interface TempMailApi {
 
     @GET("api/v1/?action=readMessage")
     suspend fun getMailDetails(@Query("login") login : String
-                           ,@Query("domain") domain : String, @Query("id") id : String) : Response<Array<Mail>>
+                           ,@Query("domain") domain : String, @Query("id") id : String) : Response<Mail>
 }

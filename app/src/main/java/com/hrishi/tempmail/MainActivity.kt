@@ -16,9 +16,9 @@ import com.hrishi.tempmail.ApiInstance.api
 import com.hrishi.tempmail.databinding.ActivityMainBinding
 
 const val TAG = "MainActivity"
-var email = "demo@domain.com"
-var mailLogin = "demo"
-var mailDomain = "domain"
+var email = "uwjofp@wwjmp.com"
+var mailLogin = "uwjofp"
+var mailDomain = "wwjmp.com"
 class MainActivity : AppCompatActivity(), inbox_rvAdapter.itemClick {
 
     lateinit var binding : ActivityMainBinding
@@ -59,15 +59,15 @@ class MainActivity : AppCompatActivity(), inbox_rvAdapter.itemClick {
         lifecycleScope.launchWhenCreated {
 
             val mailDetails = api.getMailDetails(mailLogin, mailDomain, id.toString())
-            Log.d(TAG, "onItemClick: ${mailDetails.body()!!.size}")
-//
-//            val alertDialog = AlertDialog.Builder(this@MainActivity)
-//                .setTitle(mailDetails.body()!![0].from)
-//                .setMessage(mailDetails.body()!![0].textBody)
-//                .setPositiveButton("Ok"){_, _ -> }
-//                .create()
-//
-//            alertDialog.show()
+            Log.d(TAG, "onItemClick: ${mailDetails.body()!!}")
+
+            val alertDialog = AlertDialog.Builder(this@MainActivity)
+                .setTitle(mailDetails.body()!!.from)
+                .setMessage(mailDetails.body()!!.textBody)
+                .setPositiveButton("Ok"){_, _ -> }
+                .create()
+
+            alertDialog.show()
         }
     }
 
