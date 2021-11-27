@@ -1,27 +1,28 @@
 package com.hrishi.tempmail
 
 import android.app.AlertDialog
-import android.app.Dialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.hrishi.tempmail.ApiInstance.api
 import com.hrishi.tempmail.databinding.ActivityMainBinding
+import retrofit2.HttpException
+import java.lang.Exception
 
 const val TAG = "MainActivity"
 var email = "uwjofp@wwjmp.com"
 var mailLogin = "uwjofp"
 var mailDomain = "wwjmp.com"
+
 class MainActivity : AppCompatActivity(), inbox_rvAdapter.itemClick {
 
-    lateinit var binding : ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,37 +45,55 @@ class MainActivity : AppCompatActivity(), inbox_rvAdapter.itemClick {
 
         binding.btnCopyToClipboard.setOnClickListener { copyToClipboard(email, this) }
 
-        binding.btnRefresh.setOnClickListener {
-            lifecycleScope.launchWhenCreated {
-                val mailList = api.getallMail(mailLogin, mailDomain)
-                val data = mailList.body()!!
-                val adapter =  inbox_rvAdapter(data, this@MainActivity)
-                binding.rvIndox.adapter = adapter
-                adapter.notifyDataSetChanged()
-            }
+
+        binding.btnRefresh.setOnClickListener {refreshInbox()}
+
+        binding.swipeTorRefresh.setOnRefreshListener {
+            refreshInbox()
+            binding.swipeTorRefresh.isRefreshing = false
         }
     }
 
+
+    //Inbox item click listner
     override fun onItemClick(id: Int) {
         lifecycleScope.launchWhenCreated {
 
             val mailDetails = api.getMailDetails(mailLogin, mailDomain, id.toString())
-            Log.d(TAG, "onItemClick: ${mailDetails.body()!!}")
 
             val alertDialog = AlertDialog.Builder(this@MainActivity)
                 .setTitle(mailDetails.body()!!.from)
                 .setMessage(mailDetails.body()!!.textBody)
-                .setPositiveButton("Ok"){_, _ -> }
+                .setPositiveButton("Ok") { _, _ -> }
                 .create()
 
             alertDialog.show()
         }
     }
 
-    fun copyToClipboard(data : String, context : Context){
+    //Copies data to Clipboard
+    private fun copyToClipboard(data: String, context: Context) {
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("Mail ID", data)
         clipboard.setPrimaryClip(clip)
         Toast.makeText(context, "Copied to Clipboard", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun refreshInbox(){
+        lifecycleScope.launchWhenCreated {
+
+            try{
+                val mailList = api.getallMail(mailLogin, mailDomain)
+                val data = mailList.body()!!
+                val adapter = inbox_rvAdapter(data, this@MainActivity)
+                binding.rvIndox.adapter = adapter
+                adapter.notifyDataSetChanged()
+            }catch (e : HttpException){
+                Toast.makeText(this@MainActivity, "Http Exception ${e.message()}", Toast.LENGTH_LONG).show()
+            }catch (e : Exception){
+                Toast.makeText(this@MainActivity, "Error ${e.message}", Toast.LENGTH_LONG).show()
+            }
+
+        }
     }
 }
