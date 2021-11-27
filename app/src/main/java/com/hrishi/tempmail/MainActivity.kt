@@ -1,5 +1,6 @@
 package com.hrishi.tempmail
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -79,6 +80,7 @@ class MainActivity : AppCompatActivity(), inbox_rvAdapter.itemClick {
         Toast.makeText(context, "Copied to Clipboard", Toast.LENGTH_SHORT).show()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun refreshInbox(){
         lifecycleScope.launchWhenCreated {
 
